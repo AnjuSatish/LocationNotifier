@@ -120,7 +120,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Create the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "default")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.socialmedia_tech_09)
                 .setContentTitle("Location Alert")
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
