@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Notification-Location</string>
+    <string name="LocationNotifier">MapsActivity</string>
+</resources>
