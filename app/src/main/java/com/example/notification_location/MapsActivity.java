@@ -8,9 +8,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -41,7 +43,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationListener locationListener;
     private double latitude, longitude;
     private LatLng location1, location2;
-    private static final float DISTANCE_THRESHOLD = 600;
+    private static final float DISTANCE_THRESHOLD = 500;
     private final int MY_PERMISSIONS_REQUEST_LOCATION = 600;
     private Context context;
 
@@ -81,15 +83,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 // Check if the user has reached either of the locations
                 float[] distance1 = new float[1];
-                Location.distanceBetween(currentLocation.latitude, currentLocation.longitude, location1.latitude, location1.longitude, distance1);
+                Location.distanceBetween(currentLocation.latitude,currentLocation.longitude, location1.latitude, location1.longitude, distance1);
 
                 float[] distance2 = new float[2];
-                Location.distanceBetween(currentLocation.latitude, currentLocation.longitude, location2.latitude, location2.longitude, distance2);
+                Location.distanceBetween(currentLocation.latitude,currentLocation.longitude, location2.latitude, location2.longitude, distance2);
 
-                if (distance1[0] < DISTANCE_THRESHOLD ) {
+                if (distance1[0] < 100) {
                     // User has reached location 1
                     sendNotification("Location 1 reached");
-                } else if (distance2[0] < DISTANCE_THRESHOLD) {
+                } else if (distance2[0] < 1000) {
                     // User has reached location 2
                     sendNotification("Location 2 reached");
                 }
@@ -99,20 +101,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void sendNotification(String message) {
-        Intent intent = new Intent(this, MapsActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                        Toast.makeText(getApplicationContext(),"you choose Ok action for Location",
+                                Toast.LENGTH_SHORT).show();
 
-        // Create the notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "default")
-                .setSmallIcon(R.drawable.socialmedia_tech_09)
-                .setContentTitle("Location Alert")
-                .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(0, builder.build());
+
+                    }
+                }).create();
+        builder.show();
+
 
     }
 
@@ -128,12 +130,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
         // Set the markers for the two locations
         location1 = new LatLng(9.2268, 76.8189);
         location2 = new LatLng(9.2263, 76.8184);
         mMap.addMarker(new MarkerOptions().position(location1).title("Location 1"));
         mMap.addMarker(new MarkerOptions().position(location2).title("Location 2"));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location1, 18.0f));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location2, 18.0f));
+
 
         // Request location updates
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
